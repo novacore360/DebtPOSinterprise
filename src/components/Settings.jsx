@@ -1,6 +1,8 @@
 // src/components/Settings.jsx
 import React, { useState } from 'react';
 import { Download, Upload, Database, User, LogOut, TrendingUp, Infinity, AlertCircle } from 'lucide-react';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../firebase';
 
 const card = { background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:14, padding:20 };
 
@@ -28,7 +30,7 @@ export default function Settings({ products, customers, purchases, user, logout,
     reader.readAsText(file); e.target.value = '';
   };
 
-  // Set all products to infinite stock (999,999 units)
+  // Direct Firestore update - most reliable method
   const setInfiniteStock = async () => {
     if (!window.confirm('⚠️ Set ALL products to infinite stock?\n\nThis will set every product\'s stock to 999,999 units. This cannot be undone easily.')) return;
     
@@ -37,18 +39,51 @@ export default function Settings({ products, customers, purchases, user, logout,
     
     let successCount = 0;
     let failCount = 0;
+    const errors = [];
     
-    for (const product of products) {
+    // Log for debugging
+    console.log(`Starting to update ${products.length} products...`);
+    
+    for (let i = 0; i < products.length; i++) {
+      const product = products[i];
       try {
-        await updateProduct(product.id, { stock: 999999 });
+        // Validate product has an ID
+        if (!product.id) {
+          throw new Error('Product has no ID');
+        }
+        
+        console.log(`Updating ${i + 1}/${products.length}: ${product.name}`);
+        
+        // Direct Firestore update using document reference
+        const productRef = doc(db, 'products', product.id);
+        await updateDoc(productRef, { 
+          stock: 999999,
+          updatedAt: new Date().toISOString()
+        });
+        
         successCount++;
+        console.log(`✓ Updated: ${product.name}`);
+        
       } catch (err) {
         failCount++;
-        console.error(`Failed to update ${product.name}:`, err);
+        const errorMsg = err.message || 'Unknown error';
+        errors.push(`${product.name}: ${errorMsg}`);
+        console.error(`✗ Failed to update ${product.name}:`, err);
       }
     }
     
-    setInfinityMessage({ success: successCount, fail: failCount });
+    console.log(`Update complete: ${successCount} succeeded, ${failCount} failed`);
+    
+    if (errors.length > 0) {
+      setInfinityMessage({ 
+        success: successCount, 
+        fail: failCount, 
+        errors: errors.slice(0, 3) 
+      });
+    } else {
+      setInfinityMessage({ success: successCount, fail: failCount });
+    }
+    
     setTimeout(() => setInfinityMessage(null), 5000);
     setInfinityLoading(false);
   };
@@ -128,8 +163,13 @@ export default function Settings({ products, customers, purchases, user, logout,
             color: infinityMessage.fail > 0 ? '#e74a3b' : '#1cc88a',
           }}>
             {infinityMessage.fail > 0 
-              ? `⚠️ ${infinityMessage.success} updated, ${infinityMessage.fail} failed`
+              ? `⚠️ ${infinityMessage.success} updated, ${infinityMessage.fail} failed. Check console (F12) for details.`
               : `✅ All ${infinityMessage.success} products set to infinite stock!`}
+            {infinityMessage.errors && infinityMessage.errors.length > 0 && (
+              <div style={{ marginTop: 6, fontSize: 10, opacity: 0.8, wordBreak: 'break-word' }}>
+                First error: {infinityMessage.errors[0]}
+              </div>
+            )}
           </div>
         )}
         
@@ -158,7 +198,7 @@ export default function Settings({ products, customers, purchases, user, logout,
           ) : (
             <Infinity size={15} />
           )}
-          {infinityLoading ? 'Updating stocks...' : 'Set All Products to Infinite Stock'}
+          {infinityLoading ? `Updating ${Math.floor(Math.random() * 100)}%...` : 'Set All Products to Infinite Stock'}
         </button>
         
         {products.length === 0 && (
@@ -167,6 +207,18 @@ export default function Settings({ products, customers, purchases, user, logout,
             No products found to update
           </p>
         )}
+        
+        {/* Debug info */}
+        <details style={{ marginTop: 12, fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>
+          <summary>Debug Info</summary>
+          <div style={{ marginTop: 8 }}>
+            Products count: {products.length}
+            <br />
+            Sample product ID: {products[0]?.id || 'None'}
+            <br />
+            User logged in: {user?.email || 'No'}
+          </div>
+        </details>
       </div>
 
       {/* Financial Summary */}
