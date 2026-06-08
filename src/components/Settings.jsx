@@ -1,9 +1,13 @@
-import React from 'react';
-import { Download, Upload, Database, User, LogOut, TrendingUp } from 'lucide-react';
+// src/components/Settings.jsx
+import React, { useState } from 'react';
+import { Download, Upload, Database, User, LogOut, TrendingUp, Infinity, AlertCircle } from 'lucide-react';
 
 const card = { background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:14, padding:20 };
 
-export default function Settings({ products, customers, purchases, user, logout }) {
+export default function Settings({ products, customers, purchases, user, logout, updateProduct }) {
+  const [infinityLoading, setInfinityLoading] = useState(false);
+  const [infinityMessage, setInfinityMessage] = useState(null);
+
   const exportData = () => {
     const data = { products, customers, purchases, exportedAt: new Date().toISOString() };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
@@ -22,6 +26,31 @@ export default function Settings({ products, customers, purchases, user, logout 
       } catch { alert('Invalid JSON file.'); }
     };
     reader.readAsText(file); e.target.value = '';
+  };
+
+  // Set all products to infinite stock (999,999 units)
+  const setInfiniteStock = async () => {
+    if (!window.confirm('⚠️ Set ALL products to infinite stock?\n\nThis will set every product\'s stock to 999,999 units. This cannot be undone easily.')) return;
+    
+    setInfinityLoading(true);
+    setInfinityMessage(null);
+    
+    let successCount = 0;
+    let failCount = 0;
+    
+    for (const product of products) {
+      try {
+        await updateProduct(product.id, { stock: 999999 });
+        successCount++;
+      } catch (err) {
+        failCount++;
+        console.error(`Failed to update ${product.name}:`, err);
+      }
+    }
+    
+    setInfinityMessage({ success: successCount, fail: failCount });
+    setTimeout(() => setInfinityMessage(null), 5000);
+    setInfinityLoading(false);
   };
 
   const totalSales   = purchases.reduce((s,p) => s+(p.total_amount||0), 0);
@@ -79,6 +108,67 @@ export default function Settings({ products, customers, purchases, user, logout 
         </button>
       </div>
 
+      {/* Infinite Stock Card */}
+      <div style={{ ...card, borderColor: '#4e73df30' }}>
+        <h6 style={{ color:'#fff', fontWeight:700, marginBottom:14, display:'flex', alignItems:'center', gap:8, fontSize:14 }}>
+          <Infinity size={15} color="#4e73df" /> Stock Management
+        </h6>
+        <p style={{ color:'rgba(255,255,255,0.45)', fontSize:13, marginBottom:14, lineHeight:1.5 }}>
+          Set all products to infinite stock (999,999 units). Useful for unlimited inventory scenarios.
+        </p>
+        
+        {infinityMessage && (
+          <div style={{
+            padding: '10px 12px',
+            borderRadius: 9,
+            marginBottom: 14,
+            background: infinityMessage.fail > 0 ? 'rgba(231,74,59,0.12)' : 'rgba(28,200,138,0.12)',
+            border: `1px solid ${infinityMessage.fail > 0 ? 'rgba(231,74,59,0.3)' : 'rgba(28,200,138,0.3)'}`,
+            fontSize: 12,
+            color: infinityMessage.fail > 0 ? '#e74a3b' : '#1cc88a',
+          }}>
+            {infinityMessage.fail > 0 
+              ? `⚠️ ${infinityMessage.success} updated, ${infinityMessage.fail} failed`
+              : `✅ All ${infinityMessage.success} products set to infinite stock!`}
+          </div>
+        )}
+        
+        <button 
+          onClick={setInfiniteStock} 
+          disabled={infinityLoading || products.length === 0}
+          style={{ 
+            width:'100%', 
+            padding:'11px 14px', 
+            background: infinityLoading || products.length === 0 
+              ? 'rgba(78,115,223,0.3)' 
+              : 'linear-gradient(135deg, #4e73df, #224abe)',
+            border:'none', 
+            borderRadius:9, 
+            color:'#fff', 
+            cursor: (infinityLoading || products.length === 0) ? 'not-allowed' : 'pointer', 
+            fontWeight:600, 
+            fontSize:14, 
+            display:'flex', 
+            alignItems:'center', 
+            justifyContent:'center', 
+            gap:8 
+          }}>
+          {infinityLoading ? (
+            <div style={{ width:16, height:16, borderRadius:'50%', border:'2px solid rgba(255,255,255,0.3)', borderTopColor:'#fff', animation:'spin 0.8s linear infinite' }} />
+          ) : (
+            <Infinity size={15} />
+          )}
+          {infinityLoading ? 'Updating stocks...' : 'Set All Products to Infinite Stock'}
+        </button>
+        
+        {products.length === 0 && (
+          <p style={{ color:'rgba(231,74,59,0.7)', fontSize:11, marginTop:10, textAlign:'center' }}>
+            <AlertCircle size={11} style={{ display:'inline', marginRight:4 }} />
+            No products found to update
+          </p>
+        )}
+      </div>
+
       {/* Financial Summary */}
       <div style={{ ...card, gridColumn:'1 / -1' }}>
         <h6 style={{ color:'#fff', fontWeight:700, marginBottom:14, display:'flex', alignItems:'center', gap:8, fontSize:14 }}>
@@ -100,6 +190,12 @@ export default function Settings({ products, customers, purchases, user, logout 
           ))}
         </div>
       </div>
+
+      <style>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
