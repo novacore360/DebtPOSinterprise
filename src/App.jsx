@@ -127,7 +127,7 @@ function POSApp() {
         {tab === 'products'  && <Products products={products} addProduct={addProduct} updateProduct={updateProduct} deleteProduct={deleteProduct} />}
         {tab === 'purchase'  && <NewPurchase products={products} customers={customers} addPurchase={addPurchase} addCustomer={addCustomer} updateProduct={updateProduct} />}
         {tab === 'customers' && <Customers customers={customers} purchases={purchases} updateCustomer={updateCustomer} deleteCustomer={deleteCustomer} updatePurchase={updatePurchase} deletePurchase={deletePurchase} />}
-        {tab === 'settings'  && <Settings products={products} customers={customers} purchases={purchases} user={user} logout={logout} />}
+        {tab === 'settings'  && <Settings products={products} customers={customers} purchases={purchases} user={user} logout={logout} updateProduct={updateProduct} />}
       </div>
 
       {/* Mobile bottom nav */}
