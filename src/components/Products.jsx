@@ -8,7 +8,7 @@ const focusOut = e => { e.target.style.borderColor='rgba(255,255,255,0.1)'; e.ta
 const card = { background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:14, padding:18 };
 const lbl  = { color:'rgba(255,255,255,0.55)', fontSize:12, marginBottom:5, display:'block', fontWeight:600 };
 
-const empty = { productCode:'', name:'', costPrice:'', retailPrice:'', stock:'', lowStockThreshold:'5', category:'' };
+const empty = { productCode:'', name:'', costPrice:'', retailPrice:'', stock:'999999', lowStockThreshold:'5', category:'' };
 
 export default function Products({ products, addProduct, updateProduct, deleteProduct }) {
   const [form, setForm]     = useState(empty);
@@ -42,7 +42,7 @@ export default function Products({ products, addProduct, updateProduct, deletePr
         name: form.name.trim(),
         costPrice, retailPrice,
         price: retailPrice,
-        stock: parseInt(form.stock)||0,
+        stock: editing ? (parseInt(form.stock)||0) : (parseInt(form.stock)||999999),
         lowStockThreshold: parseInt(form.lowStockThreshold)||5,
         category: form.category.trim(),
       };
