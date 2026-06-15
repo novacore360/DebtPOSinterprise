@@ -29,9 +29,9 @@ export default function Products({ products, addProduct, updateProduct, deletePr
 
   const handleSubmit = async e => {
     e.preventDefault(); setError('');
-    const costPrice   = parseFloat(form.costPrice);
+    const costPrice   = parseFloat(form.costPrice) || 0;
     const retailPrice = parseFloat(form.retailPrice);
-    if (!form.productCode||!form.name||isNaN(costPrice)||isNaN(retailPrice)) return setError('Fill all required fields.');
+    if (!form.name||isNaN(retailPrice)) return setError('Fill all required fields.');
     if (retailPrice < costPrice) return setError('Retail price should be ≥ cost price.');
     const dup = products.find(p => p.productCode === form.productCode && p.id !== editing);
     if (dup) return setError('Product code already exists.');
@@ -93,9 +93,9 @@ export default function Products({ products, addProduct, updateProduct, deletePr
             <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(200px, 1fr))', gap:10 }}>
               {/* Product Code */}
               <div>
-                <label style={lbl}>Code *</label>
+                <label style={lbl}>Code</label>
                 <div style={{ position:'relative' }}>
-                  <input value={form.productCode} onChange={e => setForm(f=>({...f, productCode:e.target.value}))} placeholder="e.g. PRD-001" style={{ ...iStyle, paddingRight:42 }} onFocus={focusIn} onBlur={focusOut} required />
+                  <input value={form.productCode} onChange={e => setForm(f=>({...f, productCode:e.target.value}))} placeholder="e.g. PRD-001" style={{ ...iStyle, paddingRight:42 }} onFocus={focusIn} onBlur={focusOut} />
                   <button type="button" onClick={() => setScannerOpen(true)} style={{ position:'absolute', right:6, top:'50%', transform:'translateY(-50%)', background:'rgba(78,115,223,0.2)', border:'none', borderRadius:6, color:'#4e73df', cursor:'pointer', padding:'4px 6px', display:'flex', alignItems:'center' }}>
                     <Barcode size={14} />
                   </button>
@@ -106,11 +106,11 @@ export default function Products({ products, addProduct, updateProduct, deletePr
                 <input value={form.name} onChange={e => setForm(f=>({...f, name:e.target.value}))} placeholder="Product name" style={iStyle} onFocus={focusIn} onBlur={focusOut} required />
               </div>
               <div>
-                <label style={lbl}>Cost Price *</label>
-                <input type="number" min="0" step="0.01" value={form.costPrice} onChange={e => setForm(f=>({...f, costPrice:e.target.value}))} placeholder="0.00" style={iStyle} onFocus={focusIn} onBlur={focusOut} required />
+                <label style={lbl}>Cost Price (Pila imong palit ani)</label>
+                <input type="number" min="0" step="0.01" value={form.costPrice} onChange={e => setForm(f=>({...f, costPrice:e.target.value}))} placeholder="0.00" style={iStyle} onFocus={focusIn} onBlur={focusOut} />
               </div>
               <div>
-                <label style={lbl}>Retail Price *</label>
+                <label style={lbl}>Retail Price (Pila imong baligya ani) *</label>
                 <input type="number" min="0" step="0.01" value={form.retailPrice} onChange={e => setForm(f=>({...f, retailPrice:e.target.value}))} placeholder="0.00" style={iStyle} onFocus={focusIn} onBlur={focusOut} required />
               </div>
               <div>
