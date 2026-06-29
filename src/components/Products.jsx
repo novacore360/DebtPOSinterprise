@@ -114,7 +114,7 @@ export default function Products({ products, addProduct, updateProduct, deletePr
                 <input type="number" min="0" step="0.01" value={form.retailPrice} onChange={e => setForm(f=>({...f, retailPrice:e.target.value}))} placeholder="0.00" style={iStyle} onFocus={focusIn} onBlur={focusOut} required />
               </div>
               <div>
-                <label style={lbl}>Stock</label>
+                <label style={lbl}>Stock (ayaw alisdi)</label>
                 <input type="number" min="0" value={form.stock} onChange={e => setForm(f=>({...f, stock:e.target.value}))} placeholder="0" style={iStyle} onFocus={focusIn} onBlur={focusOut} />
               </div>
               <div>
