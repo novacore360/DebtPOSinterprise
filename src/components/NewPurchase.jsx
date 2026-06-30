@@ -81,12 +81,13 @@ export default function NewPurchase({ products, customers, addPurchase, addCusto
   const addToCart = () => {
     if (!selectedProduct) return showToast('Please select a product.');
     const available = selectedProduct.stock || 0;
-    if (qty < 1)            return showToast('Quantity must be at least 1.');
-    if (qty > available)    return showToast(`Only ${available} units available.`);
+    const qtyNum = parseInt(qty) || 0;
+    if (qtyNum < 1)         return showToast('Quantity must be at least 1.');
+    if (qtyNum > available) return showToast(`Only ${available} units available.`);
 
     const existing = cart.find(i => i.product_id === selectedProduct.id);
     if (existing) {
-      const newQty = existing.quantity + qty;
+      const newQty = existing.quantity + qtyNum;
       if (newQty > available) return showToast(`Only ${available} units available.`);
       setCart(cart.map(i => i.product_id === selectedProduct.id
         ? { ...i, quantity: newQty, subtotal: i.price * newQty } : i));
@@ -96,8 +97,8 @@ export default function NewPurchase({ products, customers, addPurchase, addCusto
         product_id: selectedProduct.id,
         name:       selectedProduct.name,
         price,
-        quantity:   qty,
-        subtotal:   price * qty,
+        quantity:   qtyNum,
+        subtotal:   price * qtyNum,
       }]);
     }
     setSelectedProduct(null); setProductSearch(''); setQty(1);
@@ -113,7 +114,7 @@ export default function NewPurchase({ products, customers, addPurchase, addCusto
   };
 
   const cartTotal = cart.reduce((s, i) => s + i.subtotal, 0);
-  const totalItems = cart.reduce((s, i) => s + i.quantity, 0);
+  const totalItems = cart.reduce((s, i) => s + (parseInt(i.quantity) || 0), 0);
 
   const finalizePurchase = async () => {
     if (cart.length === 0)        return showToast('Cart is empty.');
@@ -322,7 +323,15 @@ export default function NewPurchase({ products, customers, addPurchase, addCusto
             <div style={{ display:'grid', gridTemplateColumns:'1fr auto', gap:8, alignItems:'end' }}>
               <div>
                 <label style={lbl}>Quantity</label>
-                <input type="number" min="1" value={qty} onChange={e => setQty(parseInt(e.target.value)||1)} style={iStyle} onFocus={focusIn} onBlur={focusOut} />
+                <input type="number" min="1" value={qty}
+                  onChange={e => {
+                    const v = e.target.value;
+                    if (v === '') { setQty(''); return; }
+                    const n = parseInt(v);
+                    if (!isNaN(n)) setQty(n);
+                  }}
+                  onBlur={e => { focusOut(e); if (qty === '' || qty < 1) setQty(1); }}
+                  style={iStyle} onFocus={focusIn} />
               </div>
               <button onClick={addToCart} style={{
                 padding:'11px 18px', background:'linear-gradient(135deg,#4e73df,#224abe)',
@@ -374,9 +383,18 @@ export default function NewPurchase({ products, customers, addPurchase, addCusto
                         <td style={{ padding:'8px', color:'rgba(255,255,255,0.6)', textAlign:'right', whiteSpace:'nowrap' }}>₱{item.price.toFixed(2)}</td>
                         <td style={{ padding:'8px', textAlign:'center' }}>
                           <input type="number" min="1" value={item.quantity}
-                            onChange={e => updateQty(idx, parseInt(e.target.value)||1)}
+                            onChange={e => {
+                              const v = e.target.value;
+                              if (v === '') {
+                                setCart(cart.map((it, i) => i === idx ? { ...it, quantity: '' } : it));
+                                return;
+                              }
+                              const n = parseInt(v);
+                              if (!isNaN(n)) updateQty(idx, n);
+                            }}
+                            onBlur={e => { focusOut(e); if (item.quantity === '' || item.quantity < 1) updateQty(idx, 1); }}
                             style={{ ...iStyle, width:54, padding:'5px 6px', textAlign:'center' }}
-                            onFocus={focusIn} onBlur={focusOut} />
+                            onFocus={focusIn} />
                         </td>
                         <td style={{ padding:'8px', color:'#1cc88a', fontWeight:700, textAlign:'right', whiteSpace:'nowrap' }}>₱{item.subtotal.toFixed(2)}</td>
                         <td style={{ padding:'8px' }}>
