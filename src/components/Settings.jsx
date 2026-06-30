@@ -31,8 +31,11 @@ export default function Settings({ products, customers, purchases, user, logout,
   };
 
   // Direct Firestore update - most reliable method
+  const lowStockProducts = products.filter(p => (p.stock || 0) < 50);
+
   const setInfiniteStock = async () => {
-    if (!window.confirm('⚠️ Set ALL products to infinite stock?\n\nThis will set every product\'s stock to 999,999 units. This cannot be undone easily.')) return;
+    if (lowStockProducts.length === 0) return;
+    if (!window.confirm(`⚠️ Set infinite stock for ${lowStockProducts.length} low-stock product(s) (below 50 units)?\n\nThis will set their stock to 999,999 units. This cannot be undone easily.`)) return;
     
     setInfinityLoading(true);
     setInfinityMessage(null);
@@ -42,17 +45,17 @@ export default function Settings({ products, customers, purchases, user, logout,
     const errors = [];
     
     // Log for debugging
-    console.log(`Starting to update ${products.length} products...`);
+    console.log(`Starting to update ${lowStockProducts.length} low-stock products...`);
     
-    for (let i = 0; i < products.length; i++) {
-      const product = products[i];
+    for (let i = 0; i < lowStockProducts.length; i++) {
+      const product = lowStockProducts[i];
       try {
         // Validate product has an ID
         if (!product.id) {
           throw new Error('Product has no ID');
         }
         
-        console.log(`Updating ${i + 1}/${products.length}: ${product.name}`);
+        console.log(`Updating ${i + 1}/${lowStockProducts.length}: ${product.name}`);
         
         // Direct Firestore update using document reference
         const productRef = doc(db, 'products', product.id);
@@ -149,7 +152,7 @@ export default function Settings({ products, customers, purchases, user, logout,
           <Infinity size={15} color="#4e73df" /> Stock Management
         </h6>
         <p style={{ color:'rgba(255,255,255,0.45)', fontSize:13, marginBottom:14, lineHeight:1.5 }}>
-          Set all products to infinite stock (999,999 units). Useful for unlimited inventory scenarios.
+          Set infinite stock (999,999 units) only for products that are running low (below 50 units). Products with healthy stock are left untouched.
         </p>
         
         {infinityMessage && (
@@ -175,17 +178,17 @@ export default function Settings({ products, customers, purchases, user, logout,
         
         <button 
           onClick={setInfiniteStock} 
-          disabled={infinityLoading || products.length === 0}
+          disabled={infinityLoading || lowStockProducts.length === 0}
           style={{ 
             width:'100%', 
             padding:'11px 14px', 
-            background: infinityLoading || products.length === 0 
+            background: infinityLoading || lowStockProducts.length === 0 
               ? 'rgba(78,115,223,0.3)' 
               : 'linear-gradient(135deg, #4e73df, #224abe)',
             border:'none', 
             borderRadius:9, 
             color:'#fff', 
-            cursor: (infinityLoading || products.length === 0) ? 'not-allowed' : 'pointer', 
+            cursor: (infinityLoading || lowStockProducts.length === 0) ? 'not-allowed' : 'pointer', 
             fontWeight:600, 
             fontSize:14, 
             display:'flex', 
@@ -198,13 +201,13 @@ export default function Settings({ products, customers, purchases, user, logout,
           ) : (
             <Infinity size={15} />
           )}
-          {infinityLoading ? `Updating ${Math.floor(Math.random() * 100)}%...` : 'Set All Products to Infinite Stock'}
+          {infinityLoading ? `Updating ${Math.floor(Math.random() * 100)}%...` : `Set Infinite Stock for ${lowStockProducts.length} Low-Stock Product${lowStockProducts.length === 1 ? '' : 's'}`}
         </button>
         
-        {products.length === 0 && (
-          <p style={{ color:'rgba(231,74,59,0.7)', fontSize:11, marginTop:10, textAlign:'center' }}>
+        {lowStockProducts.length === 0 && (
+          <p style={{ color:'rgba(28,200,138,0.7)', fontSize:11, marginTop:10, textAlign:'center' }}>
             <AlertCircle size={11} style={{ display:'inline', marginRight:4 }} />
-            No products found to update
+            No products below 50 stock — nothing to update
           </p>
         )}
         
