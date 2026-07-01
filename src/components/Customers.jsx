@@ -55,7 +55,7 @@ export default function Customers({ customers, purchases, updateCustomer, delete
 
   const printReport = () => {
     if (!selected) return;
-    const html = `<!DOCTYPE html><html><head><title>Report</title>
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Report</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <style>
   *{box-sizing:border-box}
@@ -89,7 +89,7 @@ export default function Customers({ customers, purchases, updateCustomer, delete
     // Using a Blob URL (instead of document.write into a blank popup) makes the
     // browser parse the viewport meta tag correctly on mobile, so the page
     // renders at the right width instead of zoomed-out/desktop-sized.
-    const blob = new Blob([html], { type: 'text/html' });
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');
   };
