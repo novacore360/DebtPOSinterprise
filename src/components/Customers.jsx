@@ -65,7 +65,7 @@ export default function Customers({ customers, purchases, updateCustomer, delete
 <table><thead><tr><th>Date</th><th>Items</th><th>Amount</th><th>Status</th></tr></thead>
 <tbody>${custPurchases.map(p=>`<tr>
 <td>${new Date(p.purchase_date).toLocaleDateString()}</td>
-<td>${(p.product_data||[]).map(i=>`${i.name} ×${i.quantity}`).join(', ')}</td>
+<td>${(p.product_data||[]).map(i=>`${i.name} (₱${(i.price||0).toFixed(2)}) ×${i.quantity}`).join(', ')}</td>
 <td>₱${(p.total_amount||0).toFixed(2)}</td>
 <td>${p.status||'pending'}</td></tr>`).join('')}
 </tbody></table>
@@ -169,7 +169,7 @@ export default function Customers({ customers, purchases, updateCustomer, delete
                           🖨 Report
                         </button>
                         <button onClick={handleDelete} style={{ padding:'7px 12px', background:'rgba(231,74,59,0.15)', border:'1px solid rgba(231,74,59,0.3)', borderRadius:8, color:'#e74a3b', cursor:'pointer', fontWeight:600, fontSize:12, display:'flex', alignItems:'center', gap:5 }}>
-                          <Trash2 size={12} /> Delete Customer
+                          <Trash2 size={12} /> Delete
                         </button>
                         <button onClick={handleDeleteAllPurchases} style={{ padding:'7px 12px', background:'rgba(246,194,62,0.15)', border:'1px solid rgba(246,194,62,0.3)', borderRadius:8, color:'#f6c23e', cursor:'pointer', fontWeight:600, fontSize:12, display:'flex', alignItems:'center', gap:5 }}>
                           <PackageX size={12} /> Delete Purchases
