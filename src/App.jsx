@@ -30,7 +30,7 @@ function POSApp() {
 
   const { products, addProduct, updateProduct, deleteProduct } = useProducts();
   const { customers, addCustomer, updateCustomer, deleteCustomer } = useCustomers();
-  const { purchases, addPurchase, updatePurchase, deletePurchase } = usePurchases();
+  const { purchases, addPurchase, updatePurchase, deletePurchase, deletePurchasesByCustomer } = usePurchases();
 
   if (loading) return (
     <div style={{ minHeight:'100vh', background:'#0a0a1a', display:'flex', alignItems:'center', justifyContent:'center' }}>
@@ -126,7 +126,7 @@ function POSApp() {
         {tab === 'dashboard' && <Dashboard products={products} customers={customers} purchases={purchases} />}
         {tab === 'products'  && <Products products={products} addProduct={addProduct} updateProduct={updateProduct} deleteProduct={deleteProduct} />}
         {tab === 'purchase'  && <NewPurchase products={products} customers={customers} addPurchase={addPurchase} addCustomer={addCustomer} updateProduct={updateProduct} />}
-        {tab === 'customers' && <Customers customers={customers} purchases={purchases} updateCustomer={updateCustomer} deleteCustomer={deleteCustomer} updatePurchase={updatePurchase} deletePurchase={deletePurchase} />}
+        {tab === 'customers' && <Customers customers={customers} purchases={purchases} updateCustomer={updateCustomer} deleteCustomer={deleteCustomer} updatePurchase={updatePurchase} deletePurchase={deletePurchase} deletePurchasesByCustomer={deletePurchasesByCustomer} />}
         {tab === 'settings'  && <Settings products={products} customers={customers} purchases={purchases} user={user} logout={logout} updateProduct={updateProduct} />}
       </div>
 
