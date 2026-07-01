@@ -55,10 +55,23 @@ export default function Customers({ customers, purchases, updateCustomer, delete
 
   const printReport = () => {
     if (!selected) return;
-    const w = window.open('', '_blank');
-    w.document.write(`<!DOCTYPE html><html><head><title>Report</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<style>body{font-family:Arial,sans-serif;padding:20px;color:#333;max-width:800px;margin:0 auto}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px;text-align:left;font-size:12px}th{background:#f5f5f5}@media print{.noprint{display:none}}</style>
+    const html = `<!DOCTYPE html><html><head><title>Report</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;width:100%}
+  body{font-family:Arial,sans-serif;padding:16px;color:#333;max-width:800px;margin:0 auto}
+  table{width:100%;border-collapse:collapse}
+  th,td{border:1px solid #ddd;padding:8px;text-align:left;font-size:12px;word-break:break-word}
+  th{background:#f5f5f5}
+  .noprint{display:flex;gap:10px;margin-top:16px}
+  .noprint button{flex:1;padding:12px;font-size:15px;border:1px solid #ccc;border-radius:8px;background:#f5f5f5}
+  @media (max-width:480px){
+    body{padding:10px;font-size:13px}
+    th,td{padding:5px;font-size:11px}
+  }
+  @media print{.noprint{display:none}}
+</style>
 </head><body>
 <h2>Marnie Store — Customer Report</h2>
 <p><b>${selected.name}</b> | ${selected.phone||'No phone'} | ${selected.email||'No email'}</p>
@@ -70,9 +83,15 @@ export default function Customers({ customers, purchases, updateCustomer, delete
 <td>${p.status||'pending'}</td></tr>`).join('')}
 </tbody></table>
 <p><b>Total Spent: ₱${totalSpent.toFixed(2)}</b></p>
-<div class="noprint" style="margin-top:12px"><button onclick="window.print()">Print</button> <button onclick="window.close()">Close</button></div>
-</body></html>`);
-    w.document.close();
+<div class="noprint"><button onclick="window.print()">Print</button><button onclick="window.close()">Close</button></div>
+</body></html>`;
+
+    // Using a Blob URL (instead of document.write into a blank popup) makes the
+    // browser parse the viewport meta tag correctly on mobile, so the page
+    // renders at the right width instead of zoomed-out/desktop-sized.
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
   };
 
   if (view === 'passwords') {
