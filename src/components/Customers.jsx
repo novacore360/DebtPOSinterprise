@@ -55,6 +55,12 @@ export default function Customers({ customers, purchases, updateCustomer, delete
 
   const printReport = () => {
     if (!selected) return;
+    
+    // Calculate total pending purchases count
+    const totalPendingCount = custPurchases
+        .filter(p => (p.status || 'pending') === 'pending')
+        .length;
+    
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Report</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <style>
@@ -75,14 +81,14 @@ export default function Customers({ customers, purchases, updateCustomer, delete
 </head><body>
 <h2>Marnie Store — Customer Report</h2>
 <p><b>${selected.name}</b> | ${selected.phone||'No phone'} | ${selected.email||'No email'}</p>
-<table><thead><tr><th>Date</th><th>Items</th><th>Amount</th><th>Status</th></tr></thead>
+<table><thead><tr><th>Date</th><th>Items</th><th>Amount</th></tr></thead>
 <tbody>${custPurchases.map(p=>`<tr>
 <td>${new Date(p.purchase_date).toLocaleDateString()}</td>
 <td>${(p.product_data||[]).map(i=>`${i.name} (₱${(i.price||0).toFixed(2)}) ×${i.quantity}`).join(', ')}</td>
-<td>₱${(p.total_amount||0).toFixed(2)}</td>
-<td>${p.status||'pending'}</td></tr>`).join('')}
+<td>₱${(p.total_amount||0).toFixed(2)}</td></tr>`).join('')}
 </tbody></table>
 <p><b>Total Spent: ₱${totalSpent.toFixed(2)}</b></p>
+<p><b>Total Pending: ${totalPendingCount} purchase${totalPendingCount !== 1 ? 's' : ''}</b> <span style="color:#666;font-size:12px;">(${selected.email || 'No email'})</span></p>
 <div class="noprint"><button onclick="window.print()">Print</button><button onclick="window.close()">Close</button></div>
 </body></html>`;
 
