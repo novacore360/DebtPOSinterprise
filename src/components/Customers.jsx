@@ -87,8 +87,8 @@ export default function Customers({ customers, purchases, updateCustomer, delete
 <td>${(p.product_data||[]).map(i=>`${i.name} (₱${(i.price||0).toFixed(2)}) ×${i.quantity}`).join(', ')}</td>
 <td>₱${(p.total_amount||0).toFixed(2)}</td></tr>`).join('')}
 </tbody></table>
-<p><b>Total Spent: ₱${totalSpent.toFixed(2)}</b></p>
-<p><b>Total Pending: ${totalPendingCount} purchase${totalPendingCount !== 1 ? 's' : ''}</b> <span style="color:#666;font-size:12px;">(${selected.email || 'No email'})</span></p>
+<p><b>Total Utang: ₱${totalSpent.toFixed(2)}</b></p>
+<p><b>Tanan Utang: ${totalPendingCount} purchase${totalPendingCount !== 1 ? 's' : ''}</b></p>
 <div class="noprint"><button onclick="window.print()">Print</button><button onclick="window.close()">Close</button></div>
 </body></html>`;
 
