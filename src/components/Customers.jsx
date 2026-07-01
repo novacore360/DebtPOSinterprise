@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Search, Edit2, Trash2, ChevronDown, ChevronUp, CheckCircle, Clock, X } from 'lucide-react';
+import { Search, Edit2, Trash2, ChevronDown, ChevronUp, CheckCircle, Clock, X, KeyRound, PackageX } from 'lucide-react';
+import CustomerPasswords from './CustomerPasswords';
 
 const iStyle = { width:'100%', padding:'10px 12px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:9, color:'#fff', fontSize:14, outline:'none', boxSizing:'border-box' };
 const focusIn  = e => { e.target.style.borderColor='#4e73df'; e.target.style.boxShadow='0 0 0 2px rgba(78,115,223,0.2)'; };
@@ -7,15 +8,22 @@ const focusOut = e => { e.target.style.borderColor='rgba(255,255,255,0.1)'; e.ta
 const card = { background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:14, padding:16 };
 const lbl  = { color:'rgba(255,255,255,0.55)', fontSize:12, marginBottom:5, display:'block', fontWeight:600 };
 
-export default function Customers({ customers, purchases, updateCustomer, deleteCustomer, updatePurchase, deletePurchase }) {
+export default function Customers({ customers, purchases, updateCustomer, deleteCustomer, updatePurchase, deletePurchase, deletePurchasesByCustomer }) {
   const [search, setSearch]     = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [editData, setEditData] = useState({});
+  const [view, setView] = useState('list'); // 'list' | 'passwords'
 
   const filtered = customers.filter(c =>
     c.name?.toLowerCase().includes(search.toLowerCase()) || c.phone?.includes(search)
   );
+
+  // Suggestions dropdown shown under the search box as the user types
+  const suggestions = search.trim()
+    ? customers.filter(c => c.name?.toLowerCase().includes(search.toLowerCase()) || c.phone?.includes(search)).slice(0, 6)
+    : [];
 
   const selected = customers.find(c => c.id === expandedId);
   // Uses customer_id field from purchases (exact Firebase structure)
@@ -37,6 +45,12 @@ export default function Customers({ customers, purchases, updateCustomer, delete
   const handleDeletePurchase = async id => {
     if (!window.confirm('Delete this purchase?')) return;
     await deletePurchase(id);
+  };
+  const handleDeleteAllPurchases = async () => {
+    if (!selected) return;
+    if (custPurchases.length === 0) { window.alert('This customer has no purchases to delete.'); return; }
+    if (!window.confirm(`Delete ALL ${custPurchases.length} purchase(s) for "${selected.name}"? The customer will NOT be deleted, only their purchase history.`)) return;
+    await deletePurchasesByCustomer(expandedId);
   };
 
   const printReport = () => {
@@ -61,17 +75,53 @@ export default function Customers({ customers, purchases, updateCustomer, delete
     w.document.close();
   };
 
+  if (view === 'passwords') {
+    return (
+      <CustomerPasswords
+        customers={customers}
+        updateCustomer={updateCustomer}
+        onBack={() => setView('list')}
+      />
+    );
+  }
+
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
-      <div>
-        <h2 style={{ color:'#fff', margin:0, fontSize:18, fontWeight:700 }}>Customers</h2>
-        <p style={{ color:'rgba(255,255,255,0.4)', margin:'2px 0 0', fontSize:12 }}>{customers.length} registered customers</p>
+      <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:10 }}>
+        <div>
+          <h2 style={{ color:'#fff', margin:0, fontSize:18, fontWeight:700 }}>Customers</h2>
+          <p style={{ color:'rgba(255,255,255,0.4)', margin:'2px 0 0', fontSize:12 }}>{customers.length} registered customers</p>
+        </div>
+        <button onClick={() => setView('passwords')} style={{ padding:'8px 12px', background:'rgba(78,115,223,0.15)', border:'1px solid rgba(78,115,223,0.3)', borderRadius:8, color:'#4e73df', cursor:'pointer', fontWeight:700, fontSize:12, display:'flex', alignItems:'center', gap:6, whiteSpace:'nowrap', flexShrink:0 }}>
+          <KeyRound size={13} /> Passwords
+        </button>
       </div>
 
-      {/* Search */}
+      {/* Search with suggestions */}
       <div style={{ position:'relative' }}>
         <Search size={14} style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:'rgba(255,255,255,0.35)' }} />
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search name or phone…" style={{ ...iStyle, paddingLeft:36 }} onFocus={focusIn} onBlur={focusOut} />
+        <input
+          value={search}
+          onChange={e => { setSearch(e.target.value); setShowSuggestions(true); }}
+          onFocus={() => setShowSuggestions(true)}
+          onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+          placeholder="Search name or phone…"
+          style={{ ...iStyle, paddingLeft:36 }}
+        />
+        {showSuggestions && suggestions.length > 0 && (
+          <div style={{ position:'absolute', top:'calc(100% + 4px)', left:0, right:0, background:'#1a1a2e', border:'1px solid rgba(255,255,255,0.12)', borderRadius:9, overflow:'hidden', zIndex:20, boxShadow:'0 10px 24px rgba(0,0,0,0.45)' }}>
+            {suggestions.map(c => (
+              <div
+                key={c.id}
+                onMouseDown={() => { setSearch(c.name || ''); setShowSuggestions(false); }}
+                style={{ padding:'9px 12px', cursor:'pointer', display:'flex', justifyContent:'space-between', alignItems:'center', borderBottom:'1px solid rgba(255,255,255,0.05)' }}
+              >
+                <span style={{ color:'#fff', fontSize:13 }}>{c.name}</span>
+                <span style={{ color:'rgba(255,255,255,0.35)', fontSize:11 }}>{c.phone || ''}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Customer list */}
@@ -120,6 +170,9 @@ export default function Customers({ customers, purchases, updateCustomer, delete
                         </button>
                         <button onClick={handleDelete} style={{ padding:'7px 12px', background:'rgba(231,74,59,0.15)', border:'1px solid rgba(231,74,59,0.3)', borderRadius:8, color:'#e74a3b', cursor:'pointer', fontWeight:600, fontSize:12, display:'flex', alignItems:'center', gap:5 }}>
                           <Trash2 size={12} /> Delete
+                        </button>
+                        <button onClick={handleDeleteAllPurchases} style={{ padding:'7px 12px', background:'rgba(246,194,62,0.15)', border:'1px solid rgba(246,194,62,0.3)', borderRadius:8, color:'#f6c23e', cursor:'pointer', fontWeight:600, fontSize:12, display:'flex', alignItems:'center', gap:5 }}>
+                          <PackageX size={12} /> Delete Purchases
                         </button>
                       </div>
 
