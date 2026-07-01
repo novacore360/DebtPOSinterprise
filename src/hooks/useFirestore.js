@@ -174,5 +174,17 @@ export function usePurchases() {
     await deleteDoc(doc(db, 'purchases', id));
   }, []);
 
-  return { purchases, loading, addPurchase, updatePurchase, deletePurchase };
+  // Deletes ALL purchases belonging to a given customer, but leaves the
+  // customer document itself untouched.
+  const deletePurchasesByCustomer = useCallback(async (customerId) => {
+    const pSnap = await getDocs(
+      query(collection(db, 'purchases'), where('customer_id', '==', customerId))
+    );
+    if (pSnap.empty) return;
+    const batch = writeBatch(db);
+    pSnap.forEach((d) => batch.delete(d.ref));
+    await batch.commit();
+  }, []);
+
+  return { purchases, loading, addPurchase, updatePurchase, deletePurchase, deletePurchasesByCustomer };
 }
