@@ -58,7 +58,7 @@ export default function Customers({ customers, purchases, updateCustomer, delete
     const w = window.open('', '_blank');
     w.document.write(`<!DOCTYPE html><html><head><title>Report</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<style>body{font-family:Arial,sans-serif;padding:20px;color:#333;max-width:100px;margin:0 auto}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px;text-align:left;font-size:12px}th{background:#f5f5f5}@media print{.noprint{display:none}}</style>
+<style>body{font-family:Arial,sans-serif;padding:20px;color:#333;max-width:800px;margin:0 auto}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px;text-align:left;font-size:12px}th{background:#f5f5f5}@media print{.noprint{display:none}}</style>
 </head><body>
 <h2>Marnie Store — Customer Report</h2>
 <p><b>${selected.name}</b> | ${selected.phone||'No phone'} | ${selected.email||'No email'}</p>
