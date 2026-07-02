@@ -6,6 +6,7 @@ import App from './App.jsx'
 const wakeUpUrls = [
   'https://debtposinterprise-database-backup.onrender.com/',
   'https://marniestore-messengerbot.onrender.com/',
+  'https://marniestore-debtpos-postgre-aiven-backup.onrender.com/'
 ];
 
 wakeUpUrls.forEach((url) => {
