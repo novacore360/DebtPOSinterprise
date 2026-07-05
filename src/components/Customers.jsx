@@ -81,7 +81,7 @@ export default function Customers({ customers, purchases, updateCustomer, delete
 </head><body>
 <h2>Marnie Store — Customer Report</h2>
 <p><b>${selected.name}</b> | ${selected.phone||'No phone'} | ${selected.email||'No email'}</p>
-<table><thead><tr><th>Date</th><th>Items</th><th>Amount</th></tr></thead>
+<table><thead><tr><th>Date</th><th>Items</th></tr></thead>
 <tbody>${custPurchases.map(p=>{
   const items = p.product_data || [];
   const itemsList = items.map(i=>`${i.name} (₱${(i.price||0).toFixed(2)}) ×${i.quantity}`).join(', ');
