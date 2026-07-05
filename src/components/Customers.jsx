@@ -89,7 +89,7 @@ export default function Customers({ customers, purchases, updateCustomer, delete
   return `<tr>
 <td>${new Date(p.purchase_date).toLocaleDateString()}</td>
 <td>${itemsList} = ₱${total.toFixed(2)}</td>
-<td>₱${(p.total_amount||0).toFixed(2)}</td></tr>`;
+</tr>`;
 }).join('')}
 </tbody></table>
 <p><b>Total Utang: ₱${totalSpent.toFixed(2)}</b></p>
