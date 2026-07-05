@@ -61,7 +61,7 @@ export default function Customers({ customers, purchases, updateCustomer, delete
         .filter(p => (p.status || 'pending') === 'pending')
         .length;
     
-  const html = `<!DOCTYPE html>
+ const html = `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -96,6 +96,10 @@ col.dateCol{
   width:95px;
 }
 
+col.totalCol{
+  width:95px;
+}
+
 th,td{
   border:1px solid #ddd;
   padding:8px;
@@ -109,6 +113,12 @@ th,td{
 th:first-child,
 td:first-child{
   white-space:nowrap;
+}
+
+th:last-child,
+td:last-child{
+  white-space:nowrap;
+  text-align:right;
 }
 
 th{
@@ -143,6 +153,10 @@ th{
   }
 
   col.dateCol{
+    width:85px;
+  }
+
+  col.totalCol{
     width:85px;
   }
 }
@@ -181,12 +195,14 @@ ${selected.email || 'No email'}
 <colgroup>
   <col class="dateCol">
   <col>
+  <col class="totalCol">
 </colgroup>
 
 <thead>
 <tr>
   <th>Date</th>
   <th>Items</th>
+  <th>Total</th>
 </tr>
 </thead>
 
@@ -209,8 +225,9 @@ ${custPurchases.map(p => {
 
   return `
 <tr>
-<td>${new Date(p.purchase_date).toLocaleDateString()}</td>
-<td>${itemsList} = <b>₱${total.toFixed(2)}</b></td>
+  <td>${new Date(p.purchase_date).toLocaleDateString()}</td>
+  <td>${itemsList} =</td>
+  <td><b>₱${total.toFixed(2)}</b></td>
 </tr>`;
 }).join('')}
 
