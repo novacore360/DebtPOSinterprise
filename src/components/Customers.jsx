@@ -76,22 +76,28 @@ export default function Customers({ customers, purchases, updateCustomer, delete
     body{padding:10px;font-size:13px}
     th,td{padding:5px;font-size:11px}
   }
-  @media print{.noprint{display:none}}
+  @media print{
+    .noprint{display:none}
+    td{white-space:nowrap;padding:4px 8px}
+    table{table-layout:fixed}
+    td:first-child{width:15%}
+    td:nth-child(2){width:55%}
+    td:last-child{width:30%}
+  }
 </style>
 </head><body>
 <h2>Marnie Store — Customer Report</h2>
 <p><b>${selected.name}</b> | ${selected.phone||'No phone'} | ${selected.email||'No email'}</p>
 <table><thead><tr><th>Date</th><th>Items</th><th>Amount</th></tr></thead>
 <tbody>${custPurchases.map(p=>`<tr>
-<td>${new Date(p.purchase_date).toLocaleDateString()}</td>
-<td>${(p.product_data||[]).map(i=>`${i.name} (₱${(i.price||0).toFixed(2)}) ×${i.quantity}`).join(', ')}</td>
+<td>${new Date(p.purchase_date).toLocaleDateString('en-US', { year: 'numeric', month: 'numeric', day: 'numeric' })}</td>
+<td>${(p.product_data||[]).map(i=>`${i.name} (₱${(i.price||0).toFixed(2)}) ×${i.quantity}=`).join(', ')}</td>
 <td>₱${(p.total_amount||0).toFixed(2)}</td></tr>`).join('')}
 </tbody></table>
 <p><b>Total Utang: ₱${totalSpent.toFixed(2)}</b></p>
 <p><b>Tanan Utang: ${totalPendingCount} purchase${totalPendingCount !== 1 ? 's' : ''}</b></p>
 <div class="noprint"><button onclick="window.print()">Print</button><button onclick="window.close()">Close</button></div>
 </body></html>`;
-
     // Using a Blob URL (instead of document.write into a blank popup) makes the
     // browser parse the viewport meta tag correctly on mobile, so the page
     // renders at the right width instead of zoomed-out/desktop-sized.
