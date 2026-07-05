@@ -72,9 +72,11 @@ export default function Customers({ customers, purchases, updateCustomer, delete
   th{background:#f5f5f5}
   .noprint{display:flex;gap:10px;margin-top:16px}
   .noprint button{flex:1;padding:12px;font-size:15px;border:1px solid #ccc;border-radius:8px;background:#f5f5f5}
+  .calc-row{font-family:'Courier New',monospace;font-size:11px;color:#555;background:#f8f8f8;padding:3px 6px;border-radius:3px;display:inline-block;margin-top:3px;border-left:2px solid #0066cc}
   @media (max-width:480px){
     body{padding:10px;font-size:13px}
     th,td{padding:5px;font-size:11px}
+    .calc-row{font-size:10px}
   }
   @media print{.noprint{display:none}}
 </style>
@@ -82,10 +84,19 @@ export default function Customers({ customers, purchases, updateCustomer, delete
 <h2>Marnie Store — Customer Report</h2>
 <p><b>${selected.name}</b> | ${selected.phone||'No phone'} | ${selected.email||'No email'}</p>
 <table><thead><tr><th>Date</th><th>Items</th><th>Amount</th></tr></thead>
-<tbody>${custPurchases.map(p=>`<tr>
+<tbody>${custPurchases.map(p=>{
+  // Build the calculation string for this date
+  const items = p.product_data || [];
+  const calcParts = items.map(i => `${i.name} ${(i.price||0).toFixed(2)} × ${i.quantity}`);
+  const calcString = calcParts.join(' + ');
+  const calcTotal = items.reduce((sum, i) => sum + (i.price||0) * (i.quantity||0), 0);
+  
+  return `<tr>
 <td>${new Date(p.purchase_date).toLocaleDateString()}</td>
-<td><ul class="item-list">${(p.product_data||[]).map(i=>`<li>${i.name} (₱${(i.price||0).toFixed(2)}) ×${i.quantity}=</li>`).join('')}</ul></td>
-<td>₱${(p.total_amount||0).toFixed(2)}</td></tr>`).join('')}
+<td>${items.map(i=>`${i.name} (₱${(i.price||0).toFixed(2)}) ×${i.quantity}`).join(', ')}
+${items.length > 0 ? `<div class="calc-row">${calcString} = ₱${calcTotal.toFixed(2)}</div>` : ''}</td>
+<td>₱${(p.total_amount||0).toFixed(2)}</td></tr>`;
+}).join('')}
 </tbody></table>
 <p><b>Total Utang: ₱${totalSpent.toFixed(2)}</b></p>
 <p><b>Tanan Utang: ${totalPendingCount} purchase${totalPendingCount !== 1 ? 's' : ''}</b></p>
