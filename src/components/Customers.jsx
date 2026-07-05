@@ -67,42 +67,25 @@ export default function Customers({ customers, purchases, updateCustomer, delete
   *{box-sizing:border-box}
   html,body{margin:0;width:100%}
   body{font-family:Arial,sans-serif;padding:16px;color:#333;max-width:800px;margin:0 auto}
-  table{width:100%;border-collapse:collapse;table-layout:fixed}
-  th,td{border:1px solid #ddd;padding:8px;text-align:left;font-size:12px;word-wrap:break-word;overflow-wrap:break-word;hyphens:auto}
+  table{width:100%;border-collapse:collapse}
+  th,td{border:1px solid #ddd;padding:8px;text-align:left;font-size:12px;word-break:break-word}
   th{background:#f5f5f5}
-  th:first-child, td:first-child{width:12%;min-width:80px}
-  th:nth-child(2), td:nth-child(2){width:60%;min-width:150px}
-  th:last-child, td:last-child{width:28%;min-width:100px}
   .noprint{display:flex;gap:10px;margin-top:16px}
-  .noprint button{flex:1;padding:12px;font-size:15px;border:1px solid #ccc;border-radius:8px;background:#f5f5f5;cursor:pointer}
-  .item-list{display:block;margin:0;padding:0}
-  .item-list li{list-style:none;padding:2px 0;border-bottom:1px dashed #eee}
-  .item-list li:last-child{border-bottom:none}
+  .noprint button{flex:1;padding:12px;font-size:15px;border:1px solid #ccc;border-radius:8px;background:#f5f5f5}
   @media (max-width:480px){
     body{padding:10px;font-size:13px}
     th,td{padding:5px;font-size:11px}
-    th:first-child, td:first-child{width:15%;min-width:60px}
-    th:nth-child(2), td:nth-child(2){width:55%;min-width:100px}
-    th:last-child, td:last-child{width:30%;min-width:80px}
   }
-  @media print{
-    .noprint{display:none}
-    td{white-space:normal;padding:4px 6px;font-size:10px}
-    th{font-size:10px;padding:4px 6px}
-    .item-list li{padding:1px 0;font-size:10px}
-    th:first-child, td:first-child{width:12%}
-    th:nth-child(2), td:nth-child(2){width:60%}
-    th:last-child, td:last-child{width:28%}
-  }
+  @media print{.noprint{display:none}}
 </style>
 </head><body>
 <h2>Marnie Store — Customer Report</h2>
 <p><b>${selected.name}</b> | ${selected.phone||'No phone'} | ${selected.email||'No email'}</p>
 <table><thead><tr><th>Date</th><th>Items</th><th>Amount</th></tr></thead>
 <tbody>${custPurchases.map(p=>`<tr>
-<td style="white-space:nowrap">${new Date(p.purchase_date).toLocaleDateString('en-US', { year: 'numeric', month: 'numeric', day: 'numeric' })}</td>
+<td>${new Date(p.purchase_date).toLocaleDateString()}</td>
 <td><ul class="item-list">${(p.product_data||[]).map(i=>`<li>${i.name} (₱${(i.price||0).toFixed(2)}) ×${i.quantity}=</li>`).join('')}</ul></td>
-<td style="white-space:nowrap;font-weight:bold">₱${(p.total_amount||0).toFixed(2)}</td></tr>`).join('')}
+<td>₱${(p.total_amount||0).toFixed(2)}</td></tr>`).join('')}
 </tbody></table>
 <p><b>Total Utang: ₱${totalSpent.toFixed(2)}</b></p>
 <p><b>Tanan Utang: ${totalPendingCount} purchase${totalPendingCount !== 1 ? 's' : ''}</b></p>
