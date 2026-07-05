@@ -61,28 +61,38 @@ export default function Customers({ customers, purchases, updateCustomer, delete
         .filter(p => (p.status || 'pending') === 'pending')
         .length;
     
-    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Report</title>
+   const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Report</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <style>
   *{box-sizing:border-box}
   html,body{margin:0;width:100%}
   body{font-family:Arial,sans-serif;padding:16px;color:#333;max-width:800px;margin:0 auto}
-  table{width:100%;border-collapse:collapse}
-  th,td{border:1px solid #ddd;padding:8px;text-align:left;font-size:12px;word-break:break-word}
+  table{width:100%;border-collapse:collapse;table-layout:fixed}
+  th,td{border:1px solid #ddd;padding:8px;text-align:left;font-size:12px;word-wrap:break-word;overflow-wrap:break-word;hyphens:auto}
   th{background:#f5f5f5}
+  th:first-child, td:first-child{width:12%;min-width:80px}
+  th:nth-child(2), td:nth-child(2){width:60%;min-width:150px}
+  th:last-child, td:last-child{width:28%;min-width:100px}
   .noprint{display:flex;gap:10px;margin-top:16px}
-  .noprint button{flex:1;padding:12px;font-size:15px;border:1px solid #ccc;border-radius:8px;background:#f5f5f5}
+  .noprint button{flex:1;padding:12px;font-size:15px;border:1px solid #ccc;border-radius:8px;background:#f5f5f5;cursor:pointer}
+  .item-list{display:block;margin:0;padding:0}
+  .item-list li{list-style:none;padding:2px 0;border-bottom:1px dashed #eee}
+  .item-list li:last-child{border-bottom:none}
   @media (max-width:480px){
     body{padding:10px;font-size:13px}
     th,td{padding:5px;font-size:11px}
+    th:first-child, td:first-child{width:15%;min-width:60px}
+    th:nth-child(2), td:nth-child(2){width:55%;min-width:100px}
+    th:last-child, td:last-child{width:30%;min-width:80px}
   }
   @media print{
     .noprint{display:none}
-    td{white-space:nowrap;padding:4px 8px}
-    table{table-layout:fixed}
-    td:first-child{width:15%}
-    td:nth-child(2){width:55%}
-    td:last-child{width:30%}
+    td{white-space:normal;padding:4px 6px;font-size:10px}
+    th{font-size:10px;padding:4px 6px}
+    .item-list li{padding:1px 0;font-size:10px}
+    th:first-child, td:first-child{width:12%}
+    th:nth-child(2), td:nth-child(2){width:60%}
+    th:last-child, td:last-child{width:28%}
   }
 </style>
 </head><body>
@@ -90,14 +100,15 @@ export default function Customers({ customers, purchases, updateCustomer, delete
 <p><b>${selected.name}</b> | ${selected.phone||'No phone'} | ${selected.email||'No email'}</p>
 <table><thead><tr><th>Date</th><th>Items</th><th>Amount</th></tr></thead>
 <tbody>${custPurchases.map(p=>`<tr>
-<td>${new Date(p.purchase_date).toLocaleDateString('en-US', { year: 'numeric', month: 'numeric', day: 'numeric' })}</td>
-<td>${(p.product_data||[]).map(i=>`${i.name} (₱${(i.price||0).toFixed(2)}) ×${i.quantity}=`).join(', ')}</td>
-<td>₱${(p.total_amount||0).toFixed(2)}</td></tr>`).join('')}
+<td style="white-space:nowrap">${new Date(p.purchase_date).toLocaleDateString('en-US', { year: 'numeric', month: 'numeric', day: 'numeric' })}</td>
+<td><ul class="item-list">${(p.product_data||[]).map(i=>`<li>${i.name} (₱${(i.price||0).toFixed(2)}) ×${i.quantity}=</li>`).join('')}</ul></td>
+<td style="white-space:nowrap;font-weight:bold">₱${(p.total_amount||0).toFixed(2)}</td></tr>`).join('')}
 </tbody></table>
 <p><b>Total Utang: ₱${totalSpent.toFixed(2)}</b></p>
 <p><b>Tanan Utang: ${totalPendingCount} purchase${totalPendingCount !== 1 ? 's' : ''}</b></p>
 <div class="noprint"><button onclick="window.print()">Print</button><button onclick="window.close()">Close</button></div>
 </body></html>`;
+    
     // Using a Blob URL (instead of document.write into a blank popup) makes the
     // browser parse the viewport meta tag correctly on mobile, so the page
     // renders at the right width instead of zoomed-out/desktop-sized.
