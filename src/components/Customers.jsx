@@ -84,13 +84,11 @@ export default function Customers({ customers, purchases, updateCustomer, delete
 <table><thead><tr><th>Date</th><th>Items</th><th>Amount</th></tr></thead>
 <tbody>${custPurchases.map(p=>{
   const items = p.product_data || [];
-  const calcParts = items.map(i => `${i.name} ${(i.price||0).toFixed(2)} × ${i.quantity}`);
-  const calcString = calcParts.join(' + ');
-  const calcTotal = items.reduce((sum, i) => sum + (i.price||0) * (i.quantity||0), 0);
-  
+  const itemsList = items.map(i=>`${i.name} (₱${(i.price||0).toFixed(2)}) ×${i.quantity}`).join(', ');
+  const total = items.reduce((sum, i) => sum + (i.price||0) * (i.quantity||0), 0);
   return `<tr>
 <td>${new Date(p.purchase_date).toLocaleDateString()}</td>
-<td>${calcParts.length > 0 ? calcString + ' = ₱' + calcTotal.toFixed(2) : 'No items'}</td>
+<td>${itemsList} = ₱${total.toFixed(2)}</td>
 <td>₱${(p.total_amount||0).toFixed(2)}</td></tr>`;
 }).join('')}
 </tbody></table>
