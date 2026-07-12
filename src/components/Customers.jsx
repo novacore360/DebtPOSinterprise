@@ -75,12 +75,11 @@ export default function Customers({ customers, purchases, updateCustomer, delete
 </head><body>
 <h2>Marnie Store — Customer Report</h2>
 <p><b>${selected.name}</b> | ${selected.phone||'No phone'} | ${selected.email||'No email'}</p>
-<table><thead><tr><th>Date</th><th>Items</th><th>Amount</th><th>Status</th></tr></thead>
+<table><thead><tr><th>Date</th><th>Items</th><th>Amount</th></tr></thead>
 <tbody>${custPurchases.map(p=>`<tr>
 <td>${new Date(p.purchase_date).toLocaleDateString()}</td>
 <td>${(p.product_data||[]).map(i=>`${i.name} (₱${(i.price||0).toFixed(2)}) ×${i.quantity}`).join(', ')}</td>
-<td>₱${(p.total_amount||0).toFixed(2)}</td>
-<td>${p.status||'pending'}</td></tr>`).join('')}
+<td>₱${(p.total_amount||0).toFixed(2)}</td></tr>`).join('')}
 </tbody></table>
 <p><b>Total Spent: ₱${totalSpent.toFixed(2)}</b></p>
 <div class="noprint"><button onclick="window.print()">Print</button><button onclick="window.close()">Close</button></div>
