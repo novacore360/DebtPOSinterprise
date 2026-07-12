@@ -55,14 +55,6 @@ export default function Customers({ customers, purchases, updateCustomer, delete
 
   const printReport = () => {
     if (!selected) return;
-    
-    // Calculate total pending purchases count
-    const totalPendingCount = custPurchases
-        .filter(p => (p.status || 'pending') === 'pending')
-        .length;
-    
-const printReport = () => {
-    if (!selected) return;
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Report</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <style>
@@ -97,6 +89,7 @@ const printReport = () => {
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');
   };
+
   if (view === 'passwords') {
     return (
       <CustomerPasswords
