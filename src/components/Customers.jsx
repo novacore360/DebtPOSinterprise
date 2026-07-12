@@ -93,14 +93,10 @@ const printReport = () => {
 <p><b>Total Spent: ₱${totalSpent.toFixed(2)}</b></p>
 <div class="noprint"><button onclick="window.print()">Print</button><button onclick="window.close()">Close</button></div>
 </body></html>`;
-    // Using a Blob URL (instead of document.write into a blank popup) makes the
-    // browser parse the viewport meta tag correctly on mobile, so the page
-    // renders at the right width instead of zoomed-out/desktop-sized.
     const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');
   };
-
   if (view === 'passwords') {
     return (
       <CustomerPasswords
